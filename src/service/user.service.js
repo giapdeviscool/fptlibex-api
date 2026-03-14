@@ -1,17 +1,17 @@
-import userRepository from '../database/repository/user.repository.js';
+import { User } from '../models/User.js';
 
 const userService = { 
     async createUser(userData) {
-        const existingUser = await userRepository.findByEmail(userData.email);
+        const existingUser = await User.findOne({ email: userData.email });
         if (existingUser) {
             throw new Error('Email already exists');
         }
-        const user = await userRepository.create(userData);
+        const user = await User.create(userData);
         return user;
     },
 
     async getUserById(userId) {
-        const user = await userRepository.findById(userId);
+        const user = await User.findById(userId);
         if (!user) {
             throw new Error('User not found');
         }
@@ -19,11 +19,15 @@ const userService = {
     },
 
     async getAllUsers() {
-        return await userRepository.findAll();
+        return await User.find();
     },
 
     async updateUser(userId, updateData) {
-        const user = await userRepository.update(userId, updateData);
+        const user = await User.findByIdAndUpdate(
+            userId,
+            { $set: updateData },
+            { new: true }
+        );
         if (!user) {
             throw new Error('User not found');
         }
@@ -31,7 +35,7 @@ const userService = {
     },
 
     async deleteUser(userId) {
-        const user = await userRepository.delete(userId);
+        const user = await User.findByIdAndDelete(userId);
         if (!user) {
             throw new Error('User not found');
         }
