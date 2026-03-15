@@ -35,12 +35,12 @@ const chatService = {
             else if (diffInMinutes < 60) timeStr = `${diffInMinutes} phút`;
             else if (diffInMinutes < 1440) timeStr = `${Math.floor(diffInMinutes / 60)} giờ`;
             else timeStr = `${Math.floor(diffInMinutes / 1440)} ngày`;
-
             return {
                 id: conv._id,
                 userName: otherUser?.name || 'Người dùng hệ thống',
                 avatarInitial: otherUser?.name ? otherUser.name.charAt(0).toUpperCase() : '?',
-                lastMessage: lastMsg ? lastMsg.content : 'Bắt đầu cuộc trò chuyện',
+                lastMessage: lastMsg ? (lastMsg.content || 'Hình ảnh') : 'Bắt đầu cuộc trò chuyện',
+                lastMessageImage: lastMsg?.image || '',
                 time: timeStr,
                 unreadCount: unreadCount,
                 bookTitle: conv.book?.title || 'Sách không còn tồn tại',
@@ -65,7 +65,7 @@ const chatService = {
     },
 
     // Send a message via conversationId (New flow)
-    async sendMessageByConversation(senderId, conversationId, content) {
+    async sendMessageByConversation(senderId, conversationId, content, image = '') {
         // 1. Find conversation
         const conversation = await Conversation.findById(conversationId);
         if (!conversation) throw new Error("Không tìm thấy cuộc hội thoại");
@@ -77,7 +77,8 @@ const chatService = {
             conversation: conversation._id,
             sender: senderId,
             recipient: recipientId,
-            content
+            content,
+            image
         });
 
         // 3. Update conversation lastMessage and unread counts
@@ -111,7 +112,7 @@ const chatService = {
     },
 
     // Send a message by recipient and book (Legacy flow)
-    async sendMessage(senderId, recipientId, bookId, content) {
+    async sendMessage(senderId, recipientId, bookId, content, image = '') {
         // 1. Find or create conversation
         let conversation = await Conversation.findOne({
             participants: { $all: [senderId, recipientId] },
@@ -130,7 +131,8 @@ const chatService = {
             conversation: conversation._id,
             sender: senderId,
             recipient: recipientId,
-            content
+            content,
+            image
         });
 
         // 3. Update conversation lastMessage and unread counts

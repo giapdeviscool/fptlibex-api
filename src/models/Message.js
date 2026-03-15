@@ -20,7 +20,11 @@ const messageSchema = new Schema(
         },
         content: {
             type: String,
-            required: true,
+            required: false,
+        },
+        image: {
+            type: String,
+            default: '',
         },
         isRead: {
             type: Boolean,

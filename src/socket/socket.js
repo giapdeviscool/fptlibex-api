@@ -57,14 +57,14 @@ const setupSocket = (server) => {
         socket.on('send_message', async (data) => {
             try {
                 console.log('Client gửi tin nhắn:', data);
-                const { conversationId, text } = data;
-
-                if (!conversationId || !text) {
-                    return socket.emit('message_error', { message: "Thiếu conversationId hoặc nội dung" });
+                const { conversationId, text, image } = data;
+                
+                if (!conversationId || (!text && !image)) {
+                    return socket.emit('message_error', { message: "Thiếu nội dung tin nhắn hoặc hình ảnh" });
                 }
-
+                
                 // Gọi service gửi tin nhắn theo ID cuộc hội thoại
-                const message = await chatService.sendMessageByConversation(userId, conversationId, text);
+                const message = await chatService.sendMessageByConversation(userId, conversationId, text, image);
 
                 // Gửi phản hồi lại cho người gửi
                 socket.emit('message_sent', { success: true, messageId: message._id });
