@@ -12,7 +12,8 @@ class UserController {
 
     static async getById(req, res) {
         try {
-            const user = await userService.getUserById(req.params.id);
+            const userId = req.user._id;
+            const user = await userService.getUserById(userId);
             return res.status(200).json({ data: user });
         } catch (error) {
             return res.status(404).json({ message: error.message });
@@ -31,7 +32,8 @@ class UserController {
 
     static async update(req, res) {
         try {
-            const user = await userService.updateUser(req.params.id, req.body);
+            const userId = req.user._id;
+            const user = await userService.updateUser(userId, req.body);
             return res.status(200).json({ message: 'User updated', data: user });
         } catch (error) {
             return res.status(400).json({ message: error.message });
