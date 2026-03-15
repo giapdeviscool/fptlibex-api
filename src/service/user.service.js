@@ -2,11 +2,12 @@ import { User } from '../models/User.js';
 
 const userService = { 
     async createUser(userData) {
-        const existingUser = await User.findOne({ email: userData.email });
+        const { studentId, password, name } = userData;
+        const existingUser = await User.findOne({ studentId });
         if (existingUser) {
-            throw new Error('Email already exists');
+            throw new Error('Mã sinh viên này đã tồn tại');
         }
-        const user = await User.create(userData);
+        const user = await User.create({ studentId, password, name });
         return user;
     },
 
@@ -18,8 +19,11 @@ const userService = {
         return user;
     },
 
-    async getAllUsers() {
-        return await User.find();
+    async getAllUsers(excludeUserId = null) {
+        const query = excludeUserId ? { _id: { $ne: excludeUserId } } : {};
+        return await User.find(query)
+            .select('name studentId avatar isOnline lastActive')
+            .sort({ isOnline: -1, name: 1 });
     },
 
     async updateUser(userId, updateData) {

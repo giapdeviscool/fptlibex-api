@@ -1,6 +1,7 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+const Schema = mongoose.Schema;
 
-const bookSchema = new mongoose.Schema(
+const bookSchema = new Schema(
     {
         title: {
             type: String,
@@ -43,10 +44,13 @@ const bookSchema = new mongoose.Schema(
             enum: ["CNTT", "Kinh tế", "Ngoại ngữ", "Thiết kế", "Marketing", "Khác"],
             required: true,
         },
+        description: {
+            type: String,
+        }
     },
     {
         timestamps: true,
     }
 );
 
-module.exports = mongoose.model("Book", bookSchema);
+export const Book = mongoose.model("Book", bookSchema);

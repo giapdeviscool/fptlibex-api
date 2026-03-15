@@ -10,14 +10,14 @@ const setupApi = (app) => {
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
     app.use(cookieParser());
-    app.use('/api/v1', indexRouter);
+    app.use('/fptlibex', indexRouter);
 }
 
 const setupDB = async () => {
     const mongoUrl = process.env.MONGODB_URL;
     try {
-       await mongoose.connect(mongoUrl);
-       console.log('Connected to MongoDB');
+        await mongoose.connect(mongoUrl);
+        console.log('Connected to MongoDB');
     } catch (error) {
         console.error('Error connecting to MongoDB:', error);
     }

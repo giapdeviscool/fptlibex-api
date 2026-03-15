@@ -21,10 +21,11 @@ class UserController {
 
     static async getAll(req, res) {
         try {
-            const users = await userService.getAllUsers();
-            return res.status(200).json({ data: users });
+            const currentUserId = req.user ? req.user.id : null;
+            const users = await userService.getAllUsers(currentUserId);
+            return res.status(200).json({ success: true, data: users });
         } catch (error) {
-            return res.status(500).json({ message: error.message });
+            return res.status(500).json({ success: false, message: error.message });
         }
     }
 

@@ -1,35 +1,30 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
-const orderSchema = new Schema(
+const messageSchema = new Schema(
     {
-        book: {
+        conversation: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Book",
+            ref: "Conversation",
             required: true,
         },
-
-        buyer: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-            required: true,
-        },
-
-        seller: {
+        sender: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true,
         },
-
-        status: {
-            type: String,
-            enum: ["pending", "confirmed", "shipping", "completed", "cancelled"],
-            default: "pending",
+        recipient: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
         },
-        statusLabel: {
+        content: {
             type: String,
-            enum: ['Đang chờ', 'Đã xác nhận', 'Đang giao', 'Đã giao', 'Đã hủy'],
-            default: 'Đang chờ',
+            required: true,
+        },
+        isRead: {
+            type: Boolean,
+            default: false,
         }
     },
     {
@@ -37,4 +32,4 @@ const orderSchema = new Schema(
     }
 );
 
-export const Order = mongoose.model("Order", orderSchema);
+export const Message = mongoose.model("Message", messageSchema);
