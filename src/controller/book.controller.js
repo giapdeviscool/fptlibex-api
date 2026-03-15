@@ -1,4 +1,5 @@
 import bookService from "../service/book.service.js";
+import { uploadFile } from "../service/cloud.service.js";
 
 class BookController {
     // --- NGHIỆP VỤ BÁN SÁCH ---
@@ -6,6 +7,7 @@ class BookController {
     static async createBookSelling(req, res) {
         try {
             const bookData = req.body;
+
             const book = await bookService.createBookSelling(bookData);
             return res.status(201).json({ success: true, data: book, message: "Đăng bán sách thành công" });
         } catch (error) {

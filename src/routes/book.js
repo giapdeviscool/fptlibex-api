@@ -1,7 +1,11 @@
 import express from 'express';
 import BookController from '../controller/book.controller.js';
+import upload from 'multer';
 
 const router = express.Router();
+
+const storage = upload.memoryStorage();
+const multerUpload = upload({ storage });
 
 // --- ROUTES CHO SÁCH (BOOK SELLING) ---
 
@@ -17,7 +21,7 @@ router.get('/seller/:studentId', BookController.getBooksBySeller);
 
 
 // Đăng bán một cuốn sách mới
-router.post('/', BookController.createBookSelling);
+router.post('/', multerUpload.single('image'), BookController.createBookSelling);
 
 // Cập nhật thông tin một cuốn sách (Dành cho người bán)
 router.put('/:id', BookController.updateBook);
