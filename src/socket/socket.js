@@ -58,11 +58,11 @@ const setupSocket = (server) => {
             try {
                 console.log('Client gửi tin nhắn:', data);
                 const { conversationId, text, image } = data;
-                
+
                 if (!conversationId || (!text && !image)) {
                     return socket.emit('message_error', { message: "Thiếu nội dung tin nhắn hoặc hình ảnh" });
                 }
-                
+
                 // Gọi service gửi tin nhắn theo ID cuộc hội thoại
                 const message = await chatService.sendMessageByConversation(userId, conversationId, text, image);
 

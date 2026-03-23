@@ -43,12 +43,11 @@ class ChatController {
     static async getOrCreateConversation(req, res) {
         try {
             const { recipientStudentCode, bookId, senderId } = req.body;
-
             if (!recipientStudentCode || !bookId || !senderId) {
                 return res.status(400).json({ success: false, message: "Thiếu thông tin người nhận hoặc sách" });
             }
 
-            const conversation = await chatService.getOrCreateConversation(recipientStudentCode, senderId, bookId);
+            const conversation = await chatService.getOrCreateConversation(recipientStudentCode.studentId, senderId, bookId);
             res.status(200).json({ success: true, data: conversation });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });

@@ -7,13 +7,12 @@ const bookService = {
     // --- BOOK SELLING ---
 
     async createBookSelling(bookData) {
-        // Create a new book based on the Book model
         const book = await Book.create(bookData);
-        return book;
+        return await book.populate('seller', 'name avatar studentId');
     },
 
     async getBooks(query = {}) {
-        return await Book.find(query);
+        return await Book.find(query).populate('seller', 'name avatar studentId');
     },
 
     async getBooksBySeller(studentId) {
@@ -21,7 +20,7 @@ const bookService = {
     },
 
     async getBookById(bookId) {
-        const book = await Book.findById(bookId);
+        const book = await Book.findById(bookId).populate('seller', 'name avatar studentId');
         if (!book) {
             throw new Error('Book not found');
         }

@@ -9,9 +9,9 @@ const router = express.Router();
 
 /* GET home page. */
 router.use('/auth', authRouter);
-router.use('/users', authMiddleware,usersRouter);
+router.use('/users', authMiddleware, usersRouter);
 router.use('/books', authMiddleware, bookRouter);
-router.use('/chat', authMiddleware,chatRouter);
+router.use('/chat', authMiddleware, chatRouter);
 router.use('/upload', uploadRouter);
 
 export default router;

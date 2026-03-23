@@ -10,7 +10,7 @@ const chatService = {
             participants: userId
         })
             .populate('participants', 'name isOnline avatar')
-            .populate('book', 'title price image')
+            .populate('book', 'title price image ')
             .populate({
                 path: 'lastMessage',
                 populate: { path: 'sender', select: 'name' }
@@ -21,7 +21,6 @@ const chatService = {
         const formattedConversations = conversations.map(conv => {
             const otherUser = conv.participants.find(p => p._id.toString() !== userId.toString());
             const lastMsg = conv.lastMessage;
-
             const unreadCount = conv.unreadCount.get(userId.toString()) || 0;
             totalUnread += unreadCount;
 
@@ -38,6 +37,7 @@ const chatService = {
             return {
                 id: conv._id,
                 userName: otherUser?.name || 'Người dùng hệ thống',
+                avatar: otherUser?.avatar || '',
                 avatarInitial: otherUser?.name ? otherUser.name.charAt(0).toUpperCase() : '?',
                 lastMessage: lastMsg ? (lastMsg.content || 'Hình ảnh') : 'Bắt đầu cuộc trò chuyện',
                 lastMessageImage: lastMsg?.image || '',
@@ -45,7 +45,8 @@ const chatService = {
                 unreadCount: unreadCount,
                 bookTitle: conv.book?.title || 'Sách không còn tồn tại',
                 bookPrice: conv.book?.price || 0,
-                isOnline: otherUser?.isOnline || false
+                isOnline: otherUser?.isOnline || false,
+                bookId: conv.book?._id || ''
             };
         });
 
@@ -69,7 +70,6 @@ const chatService = {
         // 1. Find conversation
         const conversation = await Conversation.findById(conversationId);
         if (!conversation) throw new Error("Không tìm thấy cuộc hội thoại");
-        console.log(senderId)
         const recipientId = conversation.participants.find(p => p.toString() !== senderId.toString());
 
         // 2. Create message
@@ -182,11 +182,11 @@ const chatService = {
 
     // Find or Create conversation room (Shopee/Chợ Tốt flow)
     async getOrCreateConversation(recipientStudentCode, senderId, bookId) {
-
         const recipient = await User.findOne({ studentId: recipientStudentCode });
 
         let conversation = await Conversation.findOne({
-            book: bookId
+            book: bookId,
+            participants: { $all: [senderId, recipient._id] }
         }).populate('participants', 'name avatar isOnline')
             .populate('book', 'title price image');
 

@@ -35,7 +35,8 @@ const bookSchema = new Schema(
         },
 
         seller: {
-            type: String,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
             required: true,
         },
 
@@ -46,7 +47,7 @@ const bookSchema = new Schema(
         },
         description: {
             type: String,
-        }
+        },
     },
     {
         timestamps: true,
