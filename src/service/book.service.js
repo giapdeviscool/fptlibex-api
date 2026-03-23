@@ -1,6 +1,7 @@
 import { Book } from '../models/Book.js';
 import { Order } from '../models/Order.js';
 import { User } from '../models/User.js';
+import { Transaction } from '../models/Transaction.js';
 import mongoose from 'mongoose';
 
 const bookService = {
@@ -73,12 +74,28 @@ const bookService = {
             throw new Error('Seller not found');
         }
 
+        if ((buyer.balance || 0) < book.price) {
+            throw new Error('Số dư F-Coin không đủ để thanh toán');
+        }
+
+        buyer.balance -= book.price;
+        await buyer.save();
+
         const order = await Order.create({
             book: book._id,
             buyer: buyer._id,
             seller: seller._id,
             status: 'pending',
             statusLabel: 'Đang chờ'
+        });
+
+        await Transaction.create({
+            user: buyer._id,
+            type: 'payment',
+            amount: book.price,
+            status: 'completed',
+            description: `Thanh toán mua sách: ${book.title}`,
+            orderOrigin: order._id
         });
 
         return order;
@@ -115,15 +132,35 @@ const bookService = {
             throw new Error('Mã đơn hàng không hợp lệ (Phải là ObjectId)');
         }
         // statusData should contain status and statusLabel based on Order schema
+        const originalOrder = await Order.findById(orderId);
+        if (!originalOrder) {
+            throw new Error('Order not found');
+        }
+        const previousStatus = originalOrder.status;
+
         const order = await Order.findByIdAndUpdate(
             orderId,
             { $set: statusData },
             { new: true }
-        );
+        ).populate('book');
 
-        if (!order) {
-            throw new Error('Order not found');
+        if (statusData.status === 'completed' && previousStatus !== 'completed') {
+            const seller = await User.findById(order.seller);
+            if (seller && order.book) {
+                seller.balance = (seller.balance || 0) + order.book.price;
+                await seller.save();
+
+                await Transaction.create({
+                    user: seller._id,
+                    type: 'receive',
+                    amount: order.book.price,
+                    status: 'completed',
+                    description: `Nhận tiền bán sách: ${order.book.title}`,
+                    orderOrigin: order._id
+                });
+            }
         }
+
         return order;
     },
 
@@ -140,6 +177,23 @@ const bookService = {
         // Chỉ cho phép hủy nếu đang ở trạng thái pending hoặc confirmed
         if (order.status === 'shipping' || order.status === 'completed') {
             throw new Error('Không thể hủy đơn hàng đã đang giao hoặc đã hoàn thành');
+        }
+
+        // Hoàn tiền cho người mua
+        const book = await Book.findById(order.book);
+        const buyer = await User.findById(order.buyer);
+        if (buyer && book) {
+            buyer.balance = (buyer.balance || 0) + book.price;
+            await buyer.save();
+
+            await Transaction.create({
+                user: buyer._id,
+                type: 'receive',
+                amount: book.price,
+                status: 'completed',
+                description: `Hoàn tiền hủy đơn sách: ${book.title}`,
+                orderOrigin: order._id
+            });
         }
 
         order.status = 'cancelled';

@@ -4,6 +4,7 @@ import bookRouter from './book.js';
 import authRouter from './auth.js';
 import chatRouter from './chat.js';
 import uploadRouter from './upload.js';
+import walletRouter from './wallet.js';
 import { authMiddleware } from '../middleware/auth.middleware.js';
 const router = express.Router();
 
@@ -13,5 +14,6 @@ router.use('/users', authMiddleware, usersRouter);
 router.use('/books', authMiddleware, bookRouter);
 router.use('/chat', authMiddleware, chatRouter);
 router.use('/upload', uploadRouter);
+router.use('/wallet', authMiddleware, walletRouter);
 
 export default router;

@@ -1,5 +1,6 @@
 import bookService from "../service/book.service.js";
 import { uploadFile } from "../service/cloud.service.js";
+import { getIO } from "../socket/socket.js";
 
 class BookController {
     // --- NGHIỆP VỤ BÁN SÁCH ---
@@ -72,6 +73,17 @@ class BookController {
         try {
             const orderData = req.body;
             const order = await bookService.createOrder(orderData);
+
+            try {
+                const io = getIO();
+                io.to(order.seller.toString()).emit('new_order', {
+                    message: "Bạn có đơn đặt hàng mới!",
+                    order: order
+                });
+            } catch (socketError) {
+                console.error("Socket error on createOrder:", socketError);
+            }
+
             return res.status(201).json({ success: true, data: order, message: "Tạo đơn hàng thành công" });
         } catch (error) {
             return res.status(400).json({ success: false, message: error.message });
