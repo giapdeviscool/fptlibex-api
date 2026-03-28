@@ -33,6 +33,10 @@ const authService = {
             throw new Error('Mật khẩu không chính xác!');
         }
 
+        if (user.isBanned) {
+            throw new Error('Tài khoản của bạn đã bị khóa bởi quản trị viên!');
+        }
+
         const token = this.generateToken(user.role, user.studentId, user._id);
         return { user, token };
     },

@@ -7,12 +7,18 @@ import mongoose from 'mongoose';
 const bookService = {
     // --- BOOK SELLING ---
 
-    async createBookSelling(bookData) {
-        const book = await Book.create(bookData);
+    async createBookSelling(bookData, userId) {
+        const book = await Book.create({
+            ...bookData,
+            seller: userId,
+            status: 'pending',
+            statusLabel: 'Đang chờ'
+        });
         return await book.populate('seller', 'name avatar studentId');
     },
 
     async getBooks(query = {}) {
+        // Chi lay nhung sach da duoc duyet
         return await Book.find(query).populate('seller', 'name avatar studentId');
     },
 
@@ -201,6 +207,33 @@ const bookService = {
         await order.save();
 
         return order;
+    },
+
+    async getStats() {
+        const totalUsers = await User.countDocuments();
+        const allBooks = await Book.find({}); // Get all books regardless of status
+        const completedOrders = await Order.find({ status: 'completed' });
+
+        const soldBookIds = new Set(completedOrders.map(order => order.book.toString()));
+        const totalBooksSold = soldBookIds.size;
+        const totalBooksSelling = allBooks.filter(book => !soldBookIds.has(book._id.toString())).length;
+
+        const totalOrders = await Order.countDocuments({ status: 'completed' });
+
+        const completedOrdersPopulated = await Order.find({ status: 'completed' }).populate('book');
+        const totalRevenue = completedOrdersPopulated.reduce((acc, order) => acc + (order.book?.price || 0), 0);
+
+        const totalSellers = new Set(allBooks.map(book => book.seller.toString())).size;
+
+        return {
+            totalUsers,
+            totalBooks: allBooks.length,
+            totalBooksSelling,
+            totalBooksSold,
+            totalOrders,
+            totalRevenue,
+            totalSellers
+        };
     }
 };
 

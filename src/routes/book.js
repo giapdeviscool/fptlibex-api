@@ -11,6 +11,7 @@ const multerUpload = upload({ storage });
 
 // Lấy danh sách tất cả các sách (Hỗ trợ query filter)
 router.get('/', BookController.getBooks);
+router.get('/stats/summary', BookController.getPublicStats);
 
 // Lấy thông tin chi tiết của 1 cuốn sách
 router.get('/:id', BookController.getBookById);

@@ -48,6 +48,14 @@ const bookSchema = new Schema(
         description: {
             type: String,
         },
+        status: {
+            type: String,
+            enum: ["pending", "approved", "rejected"],
+        },
+        statusLabel: {
+            type: String,
+            enum: ['Đang chờ', 'Đã duyệt', 'Bị từ chối'],
+        }
     },
     {
         timestamps: true,

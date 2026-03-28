@@ -130,6 +130,22 @@ class BookController {
             return res.status(400).json({ success: false, message: error.message });
         }
     }
+
+    static async getPublicStats(req, res) {
+        try {
+            const stats = await bookService.getStats();
+            return res.status(200).json({
+                success: true,
+                data: {
+                    totalBooksSelling: stats.totalBooksSelling,
+                    totalBooksSold: stats.totalBooksSold,
+                    totalSellers: stats.totalSellers
+                }
+            });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: error.message });
+        }
+    }
 }
 
 export default BookController;

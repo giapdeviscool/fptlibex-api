@@ -15,6 +15,7 @@ const userSchema = new Schema({
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     balance: { type: Number, default: 0 },
+    isBanned: { type: Boolean, default: false },
     isOnline: { type: Boolean, default: false },
     lastActive: { type: Date, default: Date.now }
 }, { timestamps: true, versionKey: false });
